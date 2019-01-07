@@ -60,7 +60,7 @@ function Spider(game, x, y) {
     this.body.velocity.x = Spider.SPEED;
 }
 
-Spider.SPEED = 100;
+Spider.SPEED = 200;
 
 // inherit from Phaser.Sprite
 Spider.prototype = Object.create(Phaser.Sprite.prototype);
@@ -89,18 +89,19 @@ Spider.prototype.die = function () {
 
 PlayState = {};
 
-PlayState.init = function () {
+const LEVEL_COUNT = 2;
+
+PlayState.init = function (data) {
     this.game.renderer.renderSession.roundPixels = true;
 
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
         right: Phaser.KeyCode.RIGHT,
         up: Phaser.KeyCode.UP 
-        
     });
       this.coinPickupCount = 0;
      this.hasKey = false;
-    
+     this.level = (data.level || 0) % LEVEL_COUNT;
 };
 
 
@@ -115,8 +116,8 @@ PlayState._spawnCoin = function (coin) {
 };
 
 PlayState.preload = function () {
+    this.game.load.json('level:0', 'data/level00.json');
     this.game.load.json('level:1', 'data/level01.json');
-
     this.game.load.image('background', 'images/background.png');
     this.game.load.image('ground', 'images/ground.png');
     this.game.load.image('grass:8x1', 'images/grass_8x1.png');
@@ -138,7 +139,7 @@ PlayState.preload = function () {
 
 PlayState.create = function () {
     this.game.add.image(0, 0, 'background');
-    this._loadLevel(this.game.cache.getJSON('level:1'));
+    this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
     this.keys.up.onDown.add(function () {
     this.hero.jump();
 }, this);
@@ -157,14 +158,13 @@ PlayState.update = function () {
 };
 
 PlayState._handleCollisions = function () {
-    this.game.physics.arcade.collide(this.spiders, this.platforms);
+    this.game.physics.arcade.collide(this.spiders, this.platforms, this._platformVsEnemy, null, this);
     this.game.physics.arcade.collide(this.hero, this.platforms);
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
     null, this);
-    this.game.physics.arcade.collide(this.spiders, this.platforms);
+    this.game.physics.arcade.collide(this.spiders, this.platforms,this._onHeroVsEnemy, null, this);
     this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
-    this.game.physics.arcade.overlap(this.hero, this.spiders,
-    this._onHeroVsEnemy, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.spiders,this._onHeroVsEnemy, null, this);
         this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey,
         null, this)
         this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor,
@@ -256,7 +256,7 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
     }
     else { // game over -> restart the game
         this.sfx.stomp.play();
-        this.game.state.restart();
+        this.game.state.restart(true, false, {level: this.level});
     }
 };
 PlayState._onHeroVsKey = function (hero, key) {
@@ -264,8 +264,17 @@ PlayState._onHeroVsKey = function (hero, key) {
     this.hasKey = true;
 };
 PlayState._onHeroVsDoor = function (hero, door) {
-    this.game.state.restart();
+    this.game.state.restart(true, false, { level: this.level + 1 });
 };
+PlayState._platformVsEnemy = function (enemy, platform) {
+    if (platform.body.velocity.x < 0) { // kill enemies when hero is falling
+        
+       
+        enemy.die();
+
+    }
+};
+
 PlayState._createHud = function () {
         this.keyIcon = this.game.make.image(0, 19, 'icon:key');
     this.keyIcon.anchor.set(0, 0.5);
@@ -314,4 +323,11 @@ window.onload = function () {
     let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.start('play');
+    game.state.start('play', true, false, {level: 0});
 };
+
+
+
+
+
+
