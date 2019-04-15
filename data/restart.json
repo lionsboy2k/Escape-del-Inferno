@@ -1,0 +1,21 @@
+{
+    "background":{"image":"backgroundR"},
+    
+    "platforms": [
+        {"image": "ground", "x": 0, "y": 546}
+        
+    
+        
+    ],
+    "coins": [
+
+    ],
+    "hero": {"x": 21, "y": 500},
+    "friend": {"x": 42, "y": 500},
+    "spiders": [
+    ],
+     "jumpers": [              
+    ],
+    "door": {"x": 472, "y": 546},
+    "key": {"x":472, "y": 465}
+}
