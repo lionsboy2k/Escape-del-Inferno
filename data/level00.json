@@ -11,9 +11,7 @@
         {"image": "grass:4x1", "x": 491, "y": 115},
         {"image": "grass:4x1", "x": 0, "y": 115},
         {"image": "grass:4x1", "x": 200, "y": 300},
-        {"image": "grass:4x1", "x": 0, "y": 504},
-        {"image": "redplatform", "x": 100, "y": 300},
-        {"image": "blueplatform", "x": 500, "y": 300}
+        {"image": "grass:4x1", "x": 0, "y": 504}
         
         
     
@@ -24,14 +22,10 @@
     ],
     "hero": {"x": 600, "y": 500},
     "friend": {"x": 400, "y": 500},
-    "spiders": [{"x": 10, "y": 450}, {"x": 250, "y": 250}, {"x": 70, "y": 80}
-    ],
-     "jumpers": [        
-    ],
-         "brimstone": [ {"x": 800, "y": 230},{"x": 650, "y": 300},{"x": 0, "y": 300}         
-    ],
-         "camilia": [        
-    ],
+    "spiders": [{"x": 10, "y": 450}, {"x": 250, "y": 250}, {"x": 70, "y": 80}],
+     "jumpers": [ ],
+         "greed": [],
+         "camilia": [        ],
     "door": {"x": 430, "y": 546},
     "key": {"x":20, "y": 100}
 }

@@ -2,8 +2,7 @@
     "background":{"image":"background"},
     
     "platforms": [
-        {"image": "ground", "x": 0, "y": 546},
-        {"image": "longwall", "x": 0, "y": 546}
+        {"image": "ground", "x": 0, "y": 546}
         
     
         
@@ -13,12 +12,10 @@
     ],
     "hero": {"x": 21, "y": 500},
     "friend": {"x": 42, "y": 500},
-    "spiders": [
-    ],
-     "jumpers": [              
-    ],
-             "camilia": [      
-    ],
+    "spiders": [],
+    "jumpers": [],
+    "greed": [],
+    "camilia": [],
     "door": {"x": 472, "y": 546},
     "key": {"x":472, "y": 465}
 }

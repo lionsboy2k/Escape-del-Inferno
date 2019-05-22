@@ -84,9 +84,9 @@ Friend.prototype.bounce = function () {
 Friend.prototype.die = function () {
     this.body.enable = false;
 
-    this.animations.play('friend_die').onComplete.addOnce(function () {
+  {
         this.kill();
-    }, this);
+    }
     
 };
 //Spider prototypes
@@ -177,16 +177,15 @@ die() {
     
 }
 }
-class Brimstone extends Phaser.Sprite {
+class Greed extends Phaser.Sprite {
 constructor (game, x, y) {
     //Phaser.Sprite.call(this, game, x, y, 'jumper');
-    super(game,x,y,'brimstone');
+    super(game,x,y,'greed');
     // anchor
     this.anchor.set(0.5);
     // animation
-    this.animations.add('rise', [0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 2, 1, 0], 10, true);
-    this.animations.play('rise');
-
+    this.game.physics.enable(this);
+    this.body.collideWorldBounds = true;
     // physic properties
     //this.game.physics.enable(this);
     //this.body.collideWorldBounds = true;
@@ -283,7 +282,7 @@ PlayState.preload = function () {
     this.game.load.image('invisible-wall', 'images/invisible_wall.png');
     this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
     this.game.load.spritesheet('jumper', 'images/jumper.png', 54, 64);
-    this.game.load.spritesheet('brimstone', 'images/brimstone.png', 40, 64);
+    this.game.load.spritesheet('greed', 'images/greed.png', 48, 84);
     this.game.load.spritesheet('camilia', 'images/camilia.png', 75, 75);
     this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
     this.game.load.image('icon:coin', 'images/coin_icon.png');
@@ -322,7 +321,10 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.jumpers, this.platforms, this._platformVsEnemy, null, this);
     this.game.physics.arcade.collide(this.hero, this.platforms, (hero, platform) => {console.log(platform.image);}, (hero, platform)=> !(platform.image == "blueplatform"), this);
     this.game.physics.arcade.collide(this.friend, this.platforms);
+    this.game.physics.arcade.collide(this.greed, this.platforms);
     this.game.physics.arcade.collide(this.hero, this.friend);
+    this.game.physics.arcade.collide(this.friend, this.greed);
+    this.game.physics.arcade.collide(this.hero, this.greed);
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,null, this);
     this.game.physics.arcade.overlap(this.friend, this.coins, this._onHeroVsCoin,null, this);
     this.game.physics.arcade.overlap(this.coins, this.platforms, this._platformVsCoin,null, this);
@@ -332,14 +334,11 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.overlap(this.friend, this.spiders,this._onFriendVsEnemy, null, this);
     this.game.physics.arcade.overlap(this.hero, this.jumpers,this._onHeroVsJumper, null, this);
     this.game.physics.arcade.overlap(this.friend, this.jumpers,this._onFriendVsJumper, null, this);
-    this.game.physics.arcade.overlap(this.hero, this.brimstone,this._onHeroVsJumper, null, this);
-    this.game.physics.arcade.overlap(this.friend, this.brimstone,this._onFriendVsJumper, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.greed,this._onHeroVsGreed, null, this);
+    this.game.physics.arcade.overlap(this.friend, this.greed,this._onHeroVsGreed, null, this);
     this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey, null, this)
     this.game.physics.arcade.overlap(this.friend, this.key, this._onHeroVsKey, null, this)
-    this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor,
-    
-
-function (hero, door) {return this.hasKey && hero.body.touching.down;}, this);
+    this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor,function (hero, door) {return this.hasKey && hero.body.touching.down;}, this);
    
 };
 
@@ -376,12 +375,12 @@ PlayState._loadLevel = function (data) {
     this.spiders = this.game.add.group();
     this.jumpers = this.game.add.group();
     this.camilia = this.game.add.group();
-    this.brimstone = this.game.add.group();
+    this.greed = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.spikes = [];    // spawn all platforms
     data.platforms.forEach(this._spawnPlatform, this);
     // spawn hero and enemies
-    this._spawnCharacters({hero: data.hero, friend: data.friend, spiders: data.spiders, jumpers: data.jumpers, camilia: data.camilia, brimstone: data.brimstone});
+    this._spawnCharacters({hero: data.hero, friend: data.friend, spiders: data.spiders, jumpers: data.jumpers, camilia: data.camilia, greed: data.greed});
     data.coins.forEach(this._spawnCoin, this);
     this._spawnDoor(data.door.x, data.door.y);
     this._spawnKey(data.key.x, data.key.y);
@@ -438,9 +437,9 @@ PlayState._spawnCharacters = function (data) {
         let sprite = new Camilia(this.game, camilia.x, camilia.y);
         this.camilia.add(sprite);
     }, this);
-             data.brimstone.forEach(function (brimstone) {
-        let sprite = new Brimstone(this.game, brimstone.x, brimstone.y);
-        this.brimstone.add(sprite);
+             data.greed.forEach(function (greed) {
+        let sprite = new Greed(this.game, greed.x, greed.y);
+        this.greed.add(sprite);
     }, this);
 
 };
@@ -491,12 +490,23 @@ PlayState._onFriendVsJumper = function (friend, jumper) {
         friend.kill();
     this.game.state.restart(true, false, {level: this.level});
 };
+PlayState._onHeroVsGreed = function (hero, greed) {
+
+        this.game.state.restart(true, false, {level: this.level});
+};
 PlayState._onHeroVsKey = function (hero, key) {
     key.kill();
     this.hasKey = true;
 };
 PlayState._onHeroVsDoor = function (hero, door) {
+    fetch("/level",{
+        method: 'POST',
+        body: JSON.stringify({level:this.level + 1})
+    })
+        .then(data => console.log(data))
+        .catch(error => console.error(error))
     this.game.state.restart(true, false, { level: this.level + 1 });
+    
 };
 PlayState._platformVsEnemy = function (enemy, platform) {
     if (platform.body.velocity.x < 0 || platform.body.velocity.y < 0){
@@ -556,7 +566,7 @@ PlayState._spawnKey = function (x, y) {
 // =============================================================================
 
 window.onload = function () {
-    let game = new Phaser.Game(960, 600, Phaser.CANVAS, 'game');
+    let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.start('play');
     game.state.start('play', true, false, {level: 0});
